@@ -11,6 +11,7 @@ Domain and company intelligence for AI agents. Give an agent a domain or email a
 | `email_deliverability` | MX presence, SPF/DMARC posture, free vs. disposable provider, verdict | Cloudflare DoH |
 | `tech_stack` | Web server, CMS/framework, CDN, analytics, security headers, page title | Live fetch |
 | `subdomains` | Subdomain discovery from Certificate Transparency logs | crt.sh |
+| `domain_report` | One call returns a full dossier: registration + DNS + email deliverability + tech stack, combined | all-in-one |
 
 No API keys required for any tool.
 
