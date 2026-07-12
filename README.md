@@ -19,7 +19,7 @@ No API keys required for any tool.
 
 **Claude Code**
 ```bash
-claude mcp add --transport http domain-intel https://domain-intel-mcp.greenfield1775.workers.dev/mcp
+claude mcp add --transport http domain-intel https://domain.selflabbs.com/mcp
 ```
 
 **Claude Desktop / other clients**
@@ -28,7 +28,7 @@ claude mcp add --transport http domain-intel https://domain-intel-mcp.greenfield
   "mcpServers": {
     "domain-intel": {
       "command": "npx",
-      "args": ["mcp-remote", "https://domain-intel-mcp.greenfield1775.workers.dev/mcp"]
+      "args": ["mcp-remote", "https://domain.selflabbs.com/mcp"]
     }
   }
 }
@@ -56,7 +56,7 @@ The hosted endpoint is **freemium**:
 After subscribing you receive a license key beginning with `SELFLABBS-`. Pass it as a Bearer token and the free-tier caps are removed:
 
 ```bash
-claude mcp add --transport http --header "Authorization: Bearer SELFLABBS-XXXX-XXXX" domain-intel https://domain-intel-mcp.greenfield1775.workers.dev/mcp
+claude mcp add --transport http --header "Authorization: Bearer SELFLABBS-XXXX-XXXX" domain-intel https://domain.selflabbs.com/mcp
 ```
 
 The key is validated against Polar on each request (cached briefly). Cancel anytime — access reverts to the free tier automatically.
