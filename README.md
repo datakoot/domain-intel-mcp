@@ -45,11 +45,11 @@ claude mcp add --transport http domain-intel https://domain-intel-mcp.greenfield
 
 The hosted endpoint is **freemium**:
 
-- **Free** — all five tools work, results capped at 10 items per call. No key required.
+- **Free** — all six tools work, results capped at 10 items per call. No key required.
 - **Builder — $19/mo** — uncapped results, 5,000 tool calls/mo, priority endpoint.
 - **Team — $49/mo** — uncapped results, 25,000 tool calls/mo, usage dashboard.
 
-**[Subscribe →](https://buy.polar.sh/polar_cl_FHUG28jft1HVLlBa1LtTco5bY5mT8yuY4uC6P2ImBAT)** — one subscription unlocks Pro on every SelfLabbs server.
+**[Subscribe →](https://buy.polar.sh/polar_cl_Q9y3qLrNbtsssN3w5m8SK56oNcruwrmxLEPnd34oAZf)** — one subscription unlocks Pro on every SelfLabbs server.
 
 ### Using your Pro key
 
