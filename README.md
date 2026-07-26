@@ -1,4 +1,4 @@
-# Domain & Company Intel MCP — by SelfLabbs
+# Domain & Company Intel MCP — by Datakoot
 
 Domain and company intelligence for AI agents. Give an agent a domain or email address and it can vet the company, qualify the lead, or map the target — all from free public data, no API keys.
 
@@ -19,7 +19,7 @@ No API keys required for any tool.
 
 **Claude Code**
 ```bash
-claude mcp add --transport http domain-intel https://domain.selflabbs.com/mcp
+claude mcp add --transport http domain-intel https://domain.datakoot.com/mcp
 ```
 
 **Claude Desktop / other clients**
@@ -28,7 +28,7 @@ claude mcp add --transport http domain-intel https://domain.selflabbs.com/mcp
   "mcpServers": {
     "domain-intel": {
       "command": "npx",
-      "args": ["mcp-remote", "https://domain.selflabbs.com/mcp"]
+      "args": ["mcp-remote", "https://domain.datakoot.com/mcp"]
     }
   }
 }
@@ -49,14 +49,14 @@ The hosted endpoint is **freemium**:
 - **Builder — $19/mo** — uncapped results, 5,000 tool calls/mo, priority endpoint.
 - **Team — $49/mo** — uncapped results, 25,000 tool calls/mo, usage dashboard.
 
-**[Subscribe →](https://buy.polar.sh/polar_cl_Q9y3qLrNbtsssN3w5m8SK56oNcruwrmxLEPnd34oAZf)** — one subscription unlocks Pro on every SelfLabbs server.
+**[Subscribe →](https://buy.polar.sh/polar_cl_Q9y3qLrNbtsssN3w5m8SK56oNcruwrmxLEPnd34oAZf)** — one subscription unlocks Pro on every Datakoot server.
 
 ### Using your Pro key
 
 After subscribing you receive a license key beginning with `SELFLABBS-`. Pass it as a Bearer token and the free-tier caps are removed:
 
 ```bash
-claude mcp add --transport http --header "Authorization: Bearer SELFLABBS-XXXX-XXXX" domain-intel https://domain.selflabbs.com/mcp
+claude mcp add --transport http --header "Authorization: Bearer SELFLABBS-XXXX-XXXX" domain-intel https://domain.datakoot.com/mcp
 ```
 
 The key is validated against Polar on each request (cached briefly). Cancel anytime — access reverts to the free tier automatically.
