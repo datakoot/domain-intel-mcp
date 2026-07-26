@@ -53,10 +53,10 @@ The hosted endpoint is **freemium**:
 
 ### Using your Pro key
 
-After subscribing you receive a license key beginning with `SELFLABBS-`. Pass it as a Bearer token and the free-tier caps are removed:
+After subscribing you receive a license key beginning with `DATAKOOT-`. Pass it as a Bearer token and the free-tier caps are removed:
 
 ```bash
-claude mcp add --transport http --header "Authorization: Bearer SELFLABBS-XXXX-XXXX" domain-intel https://domain.datakoot.com/mcp
+claude mcp add --transport http --header "Authorization: Bearer DATAKOOT-XXXX-XXXX" domain-intel https://domain.datakoot.com/mcp
 ```
 
 The key is validated against Polar on each request (cached briefly). Cancel anytime — access reverts to the free tier automatically.
