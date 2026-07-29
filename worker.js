@@ -1,5 +1,5 @@
 /**
- * SelfLabbs Domain & Company Intel MCP Server
+ * Datakoot Domain & Company Intel MCP Server
  * Remote MCP server (Streamable HTTP, stateless) for Cloudflare Workers.
  * Zero dependencies, zero API keys. All data from free public sources.
  *
@@ -11,7 +11,7 @@
  *   subdomains          — certificate-transparency subdomain discovery (crt.sh)
  */
 
-const SERVER_INFO = { name: "selflabbs-domain-intel", version: "1.0.0" };
+const SERVER_INFO = { name: "datakoot-domain-intel", version: "1.0.0" };
 const PROTOCOL_VERSIONS = ["2025-06-18", "2025-03-26", "2024-11-05"];
 
 const TOOLS = [
@@ -108,7 +108,7 @@ async function doh(name, type) {
 async function domainIntel(args) {
   const domain = cleanDomain(args.domain);
   const res = await fetch("https://rdap.org/domain/" + encodeURIComponent(domain), {
-    headers: { Accept: "application/rdap+json", "User-Agent": "selflabbs-domain-intel-mcp" },
+    headers: { Accept: "application/rdap+json", "User-Agent": "datakoot-domain-intel-mcp" },
     redirect: "follow",
   });
   if (res.status === 404) return { domain: domain, found: false, note: "No RDAP record found. Domain may be unregistered or use a TLD without RDAP." };
@@ -224,7 +224,7 @@ async function techStack(args) {
   const timer = setTimeout(function () { controller.abort(); }, 8000);
   let res;
   try {
-    res = await fetch(target, { redirect: "follow", signal: controller.signal, headers: { "User-Agent": "Mozilla/5.0 (compatible; selflabbs-domain-intel/1.0)" } });
+    res = await fetch(target, { redirect: "follow", signal: controller.signal, headers: { "User-Agent": "Mozilla/5.0 (compatible; datakoot-domain-intel/1.0)" } });
   } catch (e) {
     clearTimeout(timer);
     throw new UserError("Could not fetch site: " + (e.name === "AbortError" ? "timed out" : e.message));
@@ -264,7 +264,7 @@ async function subdomains(args) {
   const timer = setTimeout(function () { controller.abort(); }, 9000);
   let res;
   try {
-    res = await fetch("https://crt.sh/?q=%25." + encodeURIComponent(domain) + "&output=json", { signal: controller.signal, headers: { "User-Agent": "selflabbs-domain-intel-mcp" } });
+    res = await fetch("https://crt.sh/?q=%25." + encodeURIComponent(domain) + "&output=json", { signal: controller.signal, headers: { "User-Agent": "datakoot-domain-intel-mcp" } });
   } catch (e) {
     clearTimeout(timer);
     return { domain: domain, available: false, note: "Certificate Transparency source (crt.sh) unavailable or timed out. Try again shortly." };
@@ -342,7 +342,7 @@ export default {
     if (url.pathname === "/" && request.method === "GET") {
       return new Response(JSON.stringify({
         service: SERVER_INFO.name, version: SERVER_INFO.version, mcp_endpoint: "/mcp",
-        docs: "https://selflabbs.com", tools: TOOLS.map(function (t) { return t.name; }),
+        docs: "https://datakoot.com", tools: TOOLS.map(function (t) { return t.name; }),
       }, null, 2), { headers: Object.assign({ "Content-Type": "application/json" }, CORS) });
     }
     if (url.pathname !== "/mcp") return new Response("Not found", { status: 404, headers: CORS });
