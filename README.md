@@ -18,11 +18,13 @@ No API keys required for any tool.
 ## Quick start (hosted)
 
 **Claude Code**
+
 ```bash
 claude mcp add --transport http domain-intel https://domain.datakoot.com/mcp
 ```
 
 **Claude Desktop / other clients**
+
 ```json
 {
   "mcpServers": {
@@ -37,33 +39,41 @@ claude mcp add --transport http domain-intel https://domain.datakoot.com/mcp
 ## Example agent workflows
 
 - *"Is acme.com a real, established business? When was it registered?"* → `domain_intel`
-- *"This lead's email is @acme.io — can it receive mail, is it a throwaway?"* → `email_deliverability`
-- *"What's competitor.com built on?"* → `tech_stack`
+- *"This lead’s email is @acme.io — can it receive mail, is it a throwaway?"* → `email_deliverability`
+- *"What’s competitor.com built on?"* → `tech_stack`
 - *"Map the public subdomains of target.com"* → `subdomains`
 
 ## Pricing
 
-The hosted endpoint is **freemium**:
+| | Free | Pro | Team |
+|---|---|---|---|
+| Price | $0 | $15/mo | $49/mo |
+| Calls included | 100 per day | 10,000 per month | 50,000 per month |
+| Past the allowance | refused until 00:00 UTC | $5 per 1,000 | $5 per 1,000 |
+| Most you can ever be billed | $0 | $115/mo | $149/mo |
+| Result lists | capped at 10 items per call | uncapped | uncapped |
+| Signup | none, no key | email + card | email + card |
 
-- **Free** — all six tools work, results capped at 10 items per call. No key required.
-- **Builder — $19/mo** — uncapped results, 5,000 tool calls/mo, priority endpoint.
-- **Team — $49/mo** — uncapped results, 25,000 tool calls/mo, usage dashboard.
+All six tools work on the free tier with no key. A paid allowance is shared
+across all nine Datakoot servers rather than being nine separate buckets, and
+only a `tools/call` counts — connecting and listing tools are free. Full terms at
+[datakoot.com/pricing](https://datakoot.com/pricing).
 
 **[Subscribe →](https://buy.polar.sh/polar_cl_Q9y3qLrNbtsssN3w5m8SK56oNcruwrmxLEPnd34oAZf)** — one subscription unlocks Pro on every Datakoot server.
 
 ### Using your Pro key
 
-After subscribing you receive a license key beginning with `DATAKOOT-`. Pass it as a Bearer token and the free-tier caps are removed:
+After subscribing you receive a licence key. Pass it as a Bearer token and the free-tier caps are removed:
 
 ```bash
-claude mcp add --transport http --header "Authorization: Bearer DATAKOOT-XXXX-XXXX" domain-intel https://domain.datakoot.com/mcp
+claude mcp add --transport http --header "Authorization: Bearer YOUR-KEY" domain-intel https://domain.datakoot.com/mcp
 ```
 
 The key is validated against Polar on each request (cached briefly). Cancel anytime — access reverts to the free tier automatically.
 
 ## Self-host (Cloudflare Workers, free tier)
 
-Create a Worker, paste `worker.js`, deploy. Optional `SERVER_API_KEY` env var gates access behind `Authorization: Bearer <key>`. No other configuration needed.
+The `worker.js` in this repository is a snapshot of the hosted server, not a live mirror of it — the hosted endpoint is deployed independently and may be ahead. Create a Worker, paste `worker.js`, deploy.
 
 ## License
 
