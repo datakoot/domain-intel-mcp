@@ -1,6 +1,6 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
-  "name": "io.github.datakoot/domain-dns-whois",
+  "name": "com.datakoot/domain-dns-whois",
   "title": "Domain & Company Intel MCP",
   "description": "Domain intel for AI agents: RDAP registration, DNS, email deliverability, tech stack.",
   "version": "2.1.0",
