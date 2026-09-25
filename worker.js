@@ -595,7 +595,7 @@ async function dkGate(request, env) {
       message: "Daily free limit reached (" + DK_FREE_LIMIT + " calls). It resets at 00:00 UTC. Datakoot Pro is " + DK_PRO_INCLUDED.toLocaleString() + " calls a month across all nine servers for $15 with no daily limit — " + DK_CHECKOUT };
   }
   const left = DK_FREE_LIMIT - n;
-  return { allowed: true, headers: dkHeaders(DK_FREE_LIMIT, left), meta: "\n\n(" + left + " free calls left today)", message: "" };
+  return { allowed: true, headers: dkHeaders(DK_FREE_LIMIT, left), meta: "", message: "" };
 }
 
 /* Retention analytics.
