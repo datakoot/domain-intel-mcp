@@ -292,7 +292,7 @@ async function techStack(args) {
   };
 }
 
-async function subdomains(args) {
+async function subdomainsCrtSh(args) {
   const domain = cleanDomain(args.domain);
   const controller = new AbortController();
   const timer = setTimeout(function () { controller.abort(); }, 9000);
@@ -315,7 +315,34 @@ async function subdomains(args) {
     });
   }
   const list = Array.from(set).sort();
-  return { domain: domain, available: true, count: list.length, subdomains: list.slice(0, 200), truncated: list.length > 200 };
+  return { domain: domain, available: true, count: list.length, subdomains: list.slice(0, 200), truncated: list.length > 200, source: "crt.sh" };
+}
+
+async function subdomainsCertSpotter(domain) {
+  const controller = new AbortController();
+  const timer = setTimeout(function () { controller.abort(); }, 7000);
+  try {
+    const res = await fetch("https://api.certspotter.com/v1/issuances?domain=" + encodeURIComponent(domain) + "&include_subdomains=true&expand=dns_names", { cf: { cacheTtl: 21600, cacheEverything: true }, signal: controller.signal, headers: { "User-Agent": "datakoot-domain-intel-mcp (+https://datakoot.com)" } });
+    clearTimeout(timer);
+    if (!res.ok) return { available: false, note: "Cert Spotter returned HTTP " + res.status };
+    const rows = await res.json();
+    const set = new Set();
+    for (const r of rows || []) for (const n0 of (r.dns_names || [])) { const n = String(n0).trim().toLowerCase(); if (n && !n.startsWith("*.") && (n === domain || n.endsWith("." + domain))) set.add(n); }
+    const list = Array.from(set).sort();
+    const partial = /rel="next"/.test(res.headers.get("link") || "");
+    return { domain: domain, available: true, count: list.length, subdomains: list.slice(0, 200), truncated: list.length > 200 || partial, source: "Cert Spotter (SSLMate)" + (partial ? ", first page of results" : "") };
+  } catch (e) { clearTimeout(timer); return { available: false, note: "Cert Spotter unavailable or timed out" }; }
+}
+
+async function subdomains(args) {
+  const domain = cleanDomain(args.domain);
+  // Ask both public Certificate Transparency sources at once; the first real answer wins.
+  const a = subdomainsCrtSh(args).then(function (r) { if (r && r.available) return r; throw r; });
+  const b = subdomainsCertSpotter(domain).then(function (r) { if (r && r.available) return r; throw r; });
+  try { return await Promise.any([a, b]); }
+  catch (e) {
+    throw new UserError("Both Certificate Transparency sources (crt.sh and Cert Spotter) were unavailable just now for " + domain + ". Nothing was found and this call is marked as an error; try again in a minute.");
+  }
 }
 
 async function domainReport(args) {
