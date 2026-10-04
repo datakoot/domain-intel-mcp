@@ -409,7 +409,7 @@ const CORS = {
 
 const POLAR_ORG_ID = "7f455043-0b15-4a1c-b7a0-9c06c9f3b95e";
 const UPGRADE_URL = "https://buy.polar.sh/polar_cl_Q9y3qLrNbtsssN3w5m8SK56oNcruwrmxLEPnd34oAZf";
-async function validatePolarKey(key){ if(!key) return {tier:"free"}; if(!/^[A-Za-z0-9][A-Za-z0-9-]{5,120}$/.test(key)) return {tier:"free",key_status:"malformed"}; const cache=caches.default; const ck=new Request("https://polar-validate.datakoot.internal/"+encodeURIComponent(key)); const hit=await cache.match(ck); if(hit){try{return await hit.json();}catch(e){}} let result={tier:"free",key_status:"invalid"}; try{ const r=await fetch("https://api.polar.sh/v1/customer-portal/license-keys/validate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({key:key,organization_id:POLAR_ORG_ID})}); if(r.ok){const d=await r.json(); const active=d.status==="granted"&&(!d.expires_at||new Date(d.expires_at).getTime()>Date.now()); result=active?{tier:"pro",key_status:"granted"}:{tier:"free",key_status:d.status||"inactive"};}}catch(e){} const store=new Response(JSON.stringify(result),{headers:{"Cache-Control":"s-maxage=300"}}); await cache.put(ck,store); return result; }
+async function validatePolarKey(key){ if(!key) return {tier:"free"}; if(!/^[A-Za-z0-9][A-Za-z0-9-]{5,120}$/.test(key)) return {tier:"free",key_status:"malformed"}; const cache=caches.default; const ck=new Request("https://polar-validate.datakoot.internal/"+encodeURIComponent(key)); const hit=await cache.match(ck); if(hit){try{return await hit.json();}catch(e){}} let result={tier:"free",key_status:"invalid"}; let __sure=false; try{ const r=await fetch("https://api.polar.sh/v1/customer-portal/license-keys/validate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({key:key,organization_id:POLAR_ORG_ID})}); __sure=r.ok||r.status===400||r.status===404||r.status===422; if(r.ok){const d=await r.json(); const active=d.status==="granted"&&(!d.expires_at||new Date(d.expires_at).getTime()>Date.now()); result=active?{tier:"pro",key_status:"granted"}:{tier:"free",key_status:d.status||"inactive"};}}catch(e){} if(__sure){const store=new Response(JSON.stringify(result),{headers:{"Cache-Control":"s-maxage=300"}}); await cache.put(ck,store);} return result; }
 function dkCapNote(out) {
   let before = null;
   try { before = JSON.parse(JSON.stringify(out)); } catch (e) {}
@@ -576,13 +576,16 @@ async function dkGate(request, env) {
     if (env.RL) { try { if ((await env.RL.get("pk:" + (await dkSha96("dk1:" + key)))) === "1") pro = true; } catch (e) {} }
     if (!pro) {
       try {
-        const vr = await fetch("https://api.polar.sh/v1/customer-portal/license-keys/validate", {
+        var __dkSure = false; const vr = await fetch("https://api.polar.sh/v1/customer-portal/license-keys/validate", {
           method: "POST", headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ key: key, organization_id: DK_POLAR_ORG }),
-        });
+        }); __dkSure = vr.ok || vr.status === 400 || vr.status === 404 || vr.status === 422;
         if (vr.ok) { const _pd = await vr.json().catch(() => null); pro = !!(_pd && (!("status" in _pd) || _pd.status === "granted")); if (pro && env.RL) { try { await env.RL.put("pk:" + (await dkSha96("dk1:" + key)), "1", { expirationTtl: 3600 }); } catch (e) {} } }
       } catch (e) { /* Polar unreachable: fall through to the invalid-key branch */ }
     }
+    if (pro && __dkSure && env.RL) { try { await env.RL.put("pkok:" + (await dkSha96("dk1:" + key)), "1", { expirationTtl: 2592000 }); } catch (e) {} }
+    /* Polar hiccup (429/5xx/network): honour a key that validated within 30 days. Only an explicit "no" rejects. */
+    if (!pro && !__dkSure && env.RL) { try { if (await env.RL.get("pkok:" + (await dkSha96("dk1:" + key)))) pro = true; } catch (e) {} }
     if (!pro) {
       // A key that does not validate used to fall silently back to the free
       // tier, so a paying customer with a typo looked throttled for no reason.
@@ -781,6 +784,13 @@ async function __dkWrappedFetch(request, env, ctx) {
     if (JSON.stringify(norm) !== JSON.stringify(args)) req = __dkWithBody(request, Object.assign({}, msg, { params: Object.assign({}, msg.params, { arguments: norm }) }));
   } catch (e) { req = request; }
   let res = await __dkInner.fetch(req, env, ctx);
+  // Per-tool usage counter (which tools callers actually use). Counts tool + server per UTC day, nothing about the caller.
+  if (env.QUOTA_DB && ctx && typeof name === "string" && name.length < 64) ctx.waitUntil((async () => {
+    try {
+      await env.QUOTA_DB.prepare("CREATE TABLE IF NOT EXISTS tool_usage (day TEXT NOT NULL, server TEXT NOT NULL, tool TEXT NOT NULL, n INTEGER NOT NULL, PRIMARY KEY (day, server, tool))").run();
+      await env.QUOTA_DB.prepare("INSERT INTO tool_usage (day, server, tool, n) VALUES (?1, ?2, ?3, 1) ON CONFLICT(day, server, tool) DO UPDATE SET n = n + 1").bind(new Date().toISOString().slice(0, 10), new URL(request.url).hostname.split(".")[0], name).run();
+    } catch (e) { console.error("tool_usage count failed:", e && e.message); }
+  })());
   let body = await __dkJson(res);
   // geocode: the Census place gazetteer is case-sensitive; retry once with proper capitalisation.
   if (name === "geocode" && body && body.result && body.result.isError) {
@@ -796,3 +806,5 @@ async function __dkWrappedFetch(request, env, ctx) {
   return __dkAddStructured(body) ? __dkRespond(res, body) : res;
 }
 export default Object.assign({}, __dkInner, { fetch: __dkWrappedFetch });
+
+
