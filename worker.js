@@ -402,7 +402,7 @@ async function handleRpc(msg, env, tier) {
 const CORS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization, Mcp-Session-Id, MCP-Protocol-Version",
+  "Access-Control-Allow-Headers": "Content-Type, X-Datakoot-Key, Authorization, Mcp-Session-Id, MCP-Protocol-Version",
   "Access-Control-Expose-Headers": "Mcp-Session-Id",
 };
 
@@ -809,6 +809,23 @@ async function __dkWrappedFetch(request, env, ctx) {
   if (!body) return res;
   return __dkAddStructured(body) ? __dkRespond(res, body) : res;
 }
-export default Object.assign({}, __dkInner, { fetch: __dkWrappedFetch });
+
+// Datakoot key shim (2026-10-04): lets a client send the Pro key as "X-Datakoot-Key: <key>"
+// (e.g. Smithery, which can forward a header but can't add a "Bearer " prefix). An explicit
+// X-Datakoot-Key wins over any other Authorization value. Everything downstream is unchanged.
+const __dkKeyShim = (request) => {
+  try {
+    const k = (request.headers.get("X-Datakoot-Key") || "").trim();
+    if (k && /^[A-Za-z0-9._-]{8,200}$/.test(k)) {
+      const h = new Headers(request.headers);
+      h.set("Authorization", "Bearer " + k);
+      h.delete("X-Datakoot-Key");
+      return new Request(request, { headers: h });
+    }
+  } catch (_) {}
+  return request;
+};
+
+export default Object.assign({}, __dkInner, { fetch: (request, env, ctx) => __dkWrappedFetch(__dkKeyShim(request), env, ctx) });
 
 
