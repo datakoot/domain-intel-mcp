@@ -1,0 +1,12 @@
+{
+  "name": "domain-intel-mcp",
+  "private": true,
+  "type": "module",
+  "description": "Datakoot domain MCP server (Cloudflare Worker). Production: https://domain.datakoot.com/mcp. Local stdio: node stdio.mjs",
+  "scripts": {
+    "start": "node stdio.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
